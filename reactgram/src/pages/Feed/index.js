@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList } from 'react-native';
 import { Post, PostImage, Header, Avatar, Name, Description, Loading } from './styles';
+import LazyImage from '../../components/LazyImage';
 
-export default function App() {
+export default function Feed() {
+    const [viewable, setViewable] = useState([]);
     const [feed, setFeed] = useState([]);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
@@ -37,12 +39,18 @@ export default function App() {
         await loadPage(1, true);
         setRefreshing(false);
     }
+
+    const handleViewableChanged = useCallback(({ changed }) => {
+        setViewable(changed.map(({ item }) => item.id));
+    }, []);
     
     return (
         <View>
             <FlatList
                 data={feed}
                 keyExtractor={post => String(post.id)}
+                onViewableItemsChanged={handleViewableChanged}
+                viewabilityConfig={{viewAreaCoveragePercentThreshold: 25}}
                 onEndReached={()=>loadPage()}
                 onEndReachedThreshold={0.1}
                 onRefresh={refreshList}
@@ -54,7 +62,12 @@ export default function App() {
                             <Avatar source={{uri: item.author.avatar}}/>
                             <Name>{item.author.name}</Name>
                         </Header>
-                        <PostImage ratio={item.aspectRatio} source={{uri:item.image}}/>
+                        <LazyImage
+                            shouldLoad={viewable.includes(item.id)}
+                            ratio={item.aspectRatio}
+                            smallSource={{uri:item.small}}
+                            source={{uri:item.image}}
+                        />
                         <Description>
                             <Name>{item.author.name}</Name> {item.description}
                         </Description>
