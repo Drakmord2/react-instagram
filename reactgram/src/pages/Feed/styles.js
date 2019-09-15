@@ -10,6 +10,13 @@ export const Header = styled.View`
     align-items: center;
 `;
 
+export const Footer = styled.View`
+    padding-top: 15px;
+    padding-left: 15px;
+    flex-direction: row;
+    align-items: center;
+`;
+
 export const PostImage = styled.Image`
     width: 100%;
     aspect-ratio: ${props => props.ratio};
@@ -23,6 +30,7 @@ export const Avatar = styled.Image`
 `;
 
 export const Name = styled.Text`
+    flex: 1;
     color: #333;
     font-weight: bold;
 `;
@@ -36,5 +44,14 @@ export const Loading = styled.ActivityIndicator.attrs({
     color: '#999',
     size: 'small'
 })`
-    margin: 30px 0
+    margin: 30px 0;
+`;
+
+export const More = styled.Text`
+    flex: 1;
+    line-height: 20px;
+    text-align: right;
+    font-size: 25px;
+    font-weight: bold;
+    color: #333;
 `;

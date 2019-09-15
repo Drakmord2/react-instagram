@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList } from 'react-native';
-import { Post, PostImage, Header, Avatar, Name, Description, Loading } from './styles';
+import { Icon } from 'native-base';
+import { Post, Header, Avatar, Name, Description, Loading, More, Footer } from './styles';
 import LazyImage from '../../components/LazyImage';
 import image from '../../assets/404.jpg';
 import imagesmall from '../../assets/404small.jpg';
 import avatar from '../../assets/instalogosmall.png';
-
-const localIP = "";
 
 export default function Feed() {
     const [viewable, setViewable] = useState([]);
@@ -30,7 +29,7 @@ export default function Feed() {
 
             const timeoutId = setTimeout(() => controller.abort(), 3000);
             const response = await fetch(
-                `http://${localIP||'localhost'}:3000/feed?_expand=author&_limit=5&_page=${pageNumber}`,
+                `http://localhost:3000/feed?_expand=author&_limit=5&_page=${pageNumber}`,
                 {signal}
             );
             clearTimeout(timeoutId);
@@ -79,36 +78,51 @@ export default function Feed() {
     const handleViewableChanged = useCallback(({ changed }) => {
         setViewable(changed.map(({ item }) => item.id));
     }, []);
-    
+
+    const postRender = ({ item }) => (
+        <Post>
+            <Header>
+                <Avatar source={String(item.author.avatar).search('https') !== -1 ? {uri: item.author.avatar} : item.author.avatar}/>
+                <Name onPress={()=>alert(item.author.name+"'s Profile")}>{item.author.name}</Name>
+                <More onPress={()=>alert("Options")} >...</More>
+            </Header>
+            <LazyImage
+                shouldLoad={viewable.includes(item.id)}
+                ratio={item.aspectRatio}
+                smallSource={String(item.small).search('https') !== -1 ? {uri:item.small} : item.small}
+                source={String(item.image).search('https') !== -1 ? {uri:item.image} : item.image}
+            />
+            <Footer>
+                <Icon type='AntDesign' name="hearto" style={{marginRight:10}}/>
+                <Icon type='AntDesign' name="mail" style={{marginRight:10}}/>
+                <Icon type='AntDesign' name="rocket1" />
+                <Icon type='AntDesign' name="tago" style={{flex: 1, textAlign:'right', paddingRight:10}}/>
+            </Footer>
+            <Description>
+                <Name>{item.author.name}</Name> {item.description}
+            </Description>
+        </Post>
+    );
+
+    const endReached = () => {
+        if (!loading && total !== 0) {
+            loadPage();
+        }
+    };
+
     return (
         <View>
             <FlatList
                 data={feed}
                 keyExtractor={post => String(post.id)}
                 onViewableItemsChanged={handleViewableChanged}
-                viewabilityConfig={{viewAreaCoveragePercentThreshold: 25}}
-                onEndReached={()=>loadPage()}
+                viewabilityConfig={{viewAreaCoveragePercentThreshold: 30}}
+                onEndReached={endReached}
                 onEndReachedThreshold={0.1}
                 onRefresh={refreshList}
                 refreshing={refreshing}
                 ListFooterComponent={loading && <Loading/>}
-                renderItem={({ item }) => (
-                    <Post>
-                        <Header>
-                            <Avatar source={String(item.author.avatar).search('https') !== -1 ? {uri: item.author.avatar} : item.author.avatar}/>
-                            <Name>{item.author.name}</Name>
-                        </Header>
-                        <LazyImage
-                            shouldLoad={viewable.includes(item.id)}
-                            ratio={item.aspectRatio}
-                            smallSource={String(item.small).search('https') !== -1 ? {uri:item.small} : item.small}
-                            source={String(item.image).search('https') !== -1 ? {uri:item.image} : item.image}
-                        />
-                        <Description>
-                            <Name>{item.author.name}</Name> {item.description}
-                        </Description>
-                    </Post>
-                )}
+                renderItem={postRender}
             />
         </View>
     );
