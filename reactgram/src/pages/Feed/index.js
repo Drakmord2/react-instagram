@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList } from 'react-native';
-import { Icon } from 'native-base';
-import { Post, Header, Avatar, Name, Description, Loading, More, Footer } from './styles';
+import { Icon, ActionSheet } from 'native-base';
+import { styles, Post, Header, Avatar, Name, Description, Loading, More, Footer } from './styles';
 import LazyImage from '../../components/LazyImage';
 import image from '../../assets/404.jpg';
 import imagesmall from '../../assets/404small.jpg';
 import avatar from '../../assets/instalogosmall.png';
+import ClickyIcon from "../../components/ClickyIcon";
 
 export default function Feed() {
     const [viewable, setViewable] = useState([]);
@@ -15,6 +16,13 @@ export default function Feed() {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [offline, setOffline] = useState(false);
+    const BUTTONS = ["Unfollow", "Copy Link", "Share to...", "Cancel"];
+    const DESTRUCTIVE_INDEX = 0;
+    const CANCEL_INDEX = 3;
+
+    useEffect(() => {
+        loadPage();
+    }, []);
 
     async function loadPage(pageNumber=page, shouldRefresh=false) {
         if (offline || (total && pageNumber > total)) {
@@ -27,7 +35,7 @@ export default function Feed() {
             const controller = new AbortController();
             const signal = controller.signal;
 
-            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
             const response = await fetch(
                 `http://localhost:3000/feed?_expand=author&_limit=5&_page=${pageNumber}`,
                 {signal}
@@ -64,10 +72,6 @@ export default function Feed() {
         setLoading(false);
     }
 
-    useEffect(() => {
-        loadPage();
-    }, []);
-
     async function refreshList() {
         setRefreshing(true);
         setOffline(false);
@@ -79,12 +83,35 @@ export default function Feed() {
         setViewable(changed.map(({ item }) => item.id));
     }, []);
 
+    const endReached = () => {
+        if (!loading && total !== 0) {
+            loadPage();
+        }
+    };
+
+    const moreSheet = () => {
+        ActionSheet.show(
+            {
+                options: BUTTONS,
+                cancelButtonIndex: CANCEL_INDEX,
+                destructiveButtonIndex: DESTRUCTIVE_INDEX
+            },
+            buttonIndex => {
+                if (BUTTONS[buttonIndex] !== 'Cancel') {
+                    alert(BUTTONS[buttonIndex]);
+                }
+            }
+        )
+    };
+
     const postRender = ({ item }) => (
         <Post>
             <Header>
                 <Avatar source={String(item.author.avatar).search('https') !== -1 ? {uri: item.author.avatar} : item.author.avatar}/>
-                <Name onPress={()=>alert(item.author.name+"'s Profile")}>{item.author.name}</Name>
-                <More onPress={()=>alert("Options")} >...</More>
+                <Name onPress={()=>alert(item.author.name+"'s Profile")}>
+                    {item.author.name}
+                </Name>
+                <More onPress={moreSheet} >...</More>
             </Header>
             <LazyImage
                 shouldLoad={viewable.includes(item.id)}
@@ -93,22 +120,18 @@ export default function Feed() {
                 source={String(item.image).search('https') !== -1 ? {uri:item.image} : item.image}
             />
             <Footer>
-                <Icon type='AntDesign' name="hearto" style={{marginRight:10}}/>
-                <Icon type='AntDesign' name="mail" style={{marginRight:10}}/>
-                <Icon type='AntDesign' name="rocket1" />
-                <Icon type='AntDesign' name="tago" style={{flex: 1, textAlign:'right', paddingRight:10}}/>
+                <ClickyIcon onPress={()=>alert("Like")} name="hearto" pressedColor='red'/>
+                <Icon name="mail" type='AntDesign' style={styles.footerIcon}/>
+                <Icon name="rocket1" type='AntDesign' style={styles.footerIcon}/>
+                <ClickyIcon name="tago" style={{fontSize:22, flex: 1, textAlign:'right', paddingRight:10}}/>
             </Footer>
             <Description>
-                <Name>{item.author.name}</Name> {item.description}
+                <Name onPress={()=>alert(item.author.name+"'s Profile")}>
+                    {item.author.name}
+                </Name> {item.description}
             </Description>
         </Post>
     );
-
-    const endReached = () => {
-        if (!loading && total !== 0) {
-            loadPage();
-        }
-    };
 
     return (
         <View>

@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import {StyleSheet} from "react-native";
 
 export const Post = styled.View`
     margin-top: 10px;
@@ -55,3 +56,15 @@ export const More = styled.Text`
     font-weight: bold;
     color: #333;
 `;
+
+export const styles = StyleSheet.create({
+    footerIcon: {
+        fontSize:22,
+        marginRight:10
+    },
+    footerIconRed: {
+        fontSize:22,
+        marginRight:10,
+        color: '#d00'
+    }
+});
