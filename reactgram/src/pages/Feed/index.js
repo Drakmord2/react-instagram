@@ -97,7 +97,7 @@ export default function Feed() {
                 destructiveButtonIndex: DESTRUCTIVE_INDEX
             },
             buttonIndex => {
-                if (BUTTONS[buttonIndex] !== 'Cancel') {
+                if (BUTTONS[buttonIndex] !== 'Cancel' && BUTTONS[buttonIndex] !== 'Unfollow') {
                     alert(BUTTONS[buttonIndex]);
                 }
             }
@@ -108,9 +108,7 @@ export default function Feed() {
         <Post>
             <Header>
                 <Avatar source={String(item.author.avatar).search('https') !== -1 ? {uri: item.author.avatar} : item.author.avatar}/>
-                <Name onPress={()=>alert(item.author.name+"'s Profile")}>
-                    {item.author.name}
-                </Name>
+                <Name>{item.author.name}</Name>
                 <More onPress={moreSheet} >...</More>
             </Header>
             <LazyImage
@@ -120,21 +118,19 @@ export default function Feed() {
                 source={String(item.image).search('https') !== -1 ? {uri:item.image} : item.image}
             />
             <Footer>
-                <ClickyIcon onPress={()=>alert("Like")} name="hearto" pressedColor='red'/>
+                <ClickyIcon name="hearto" pressedColor='red'/>
                 <Icon name="mail" type='AntDesign' style={styles.footerIcon}/>
                 <Icon name="rocket1" type='AntDesign' style={styles.footerIcon}/>
                 <ClickyIcon name="tago" style={{fontSize:22, flex: 1, textAlign:'right', paddingRight:10}}/>
             </Footer>
             <Description>
-                <Name onPress={()=>alert(item.author.name+"'s Profile")}>
-                    {item.author.name}
-                </Name> {item.description}
+                <Name>{item.author.name}</Name> {item.description}
             </Description>
         </Post>
     );
 
     return (
-        <View>
+        <View style={{flex:1}}>
             <FlatList
                 data={feed}
                 keyExtractor={post => String(post.id)}
@@ -146,7 +142,15 @@ export default function Feed() {
                 refreshing={refreshing}
                 ListFooterComponent={loading && <Loading/>}
                 renderItem={postRender}
+                style={{flex:1}}
             />
+            <View style={styles.feedFooter}>
+                <Icon name="home" type='Entypo' style={styles.feedFooterIcon}/>
+                <Icon name="magnifier" type='SimpleLineIcons' style={styles.feedFooterIcon}/>
+                <Icon name="plussquareo" type='AntDesign' style={styles.feedFooterIcon}/>
+                <Icon name="hearto" type='AntDesign' style={styles.feedFooterIcon}/>
+                <Icon name="user" type='AntDesign' style={styles.feedFooterIcon}/>
+            </View>
         </View>
     );
 }
