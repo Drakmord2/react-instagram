@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, FlatList } from 'react-native';
-import { Icon, ActionSheet } from 'native-base';
-import { styles, Post, Header, Avatar, Name, Description, Loading, More, Footer } from './styles';
-import LazyImage from '../../components/LazyImage';
-import image from '../../assets/404.jpg';
-import imagesmall from '../../assets/404small.jpg';
-import avatar from '../../assets/instalogosmall.png';
-import ClickyIcon from "../../components/ClickyIcon";
+
+import { Loading } from './styles';
+import assets from '../../config/assets';
+import Post from '../../components/Post';
+import Footer from '../../components/Footer';
+
+const image = assets.notFound;
+const imagesmall = assets.notFoundSmall;
+const avatar = assets.logo;
 
 export default function Feed() {
     const [viewable, setViewable] = useState([]);
@@ -16,9 +18,6 @@ export default function Feed() {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [offline, setOffline] = useState(false);
-    const BUTTONS = ["Unfollow", "Copy Link", "Share to...", "Cancel"];
-    const DESTRUCTIVE_INDEX = 0;
-    const CANCEL_INDEX = 3;
 
     useEffect(() => {
         loadPage();
@@ -89,44 +88,8 @@ export default function Feed() {
         }
     };
 
-    const moreSheet = () => {
-        ActionSheet.show(
-            {
-                options: BUTTONS,
-                cancelButtonIndex: CANCEL_INDEX,
-                destructiveButtonIndex: DESTRUCTIVE_INDEX
-            },
-            buttonIndex => {
-                if (BUTTONS[buttonIndex] !== 'Cancel' && BUTTONS[buttonIndex] !== 'Unfollow') {
-                    alert(BUTTONS[buttonIndex]);
-                }
-            }
-        )
-    };
-
     const postRender = ({ item }) => (
-        <Post>
-            <Header>
-                <Avatar source={String(item.author.avatar).search('https') !== -1 ? {uri: item.author.avatar} : item.author.avatar}/>
-                <Name>{item.author.name}</Name>
-                <More onPress={moreSheet} >...</More>
-            </Header>
-            <LazyImage
-                shouldLoad={viewable.includes(item.id)}
-                ratio={item.aspectRatio}
-                smallSource={String(item.small).search('https') !== -1 ? {uri:item.small} : item.small}
-                source={String(item.image).search('https') !== -1 ? {uri:item.image} : item.image}
-            />
-            <Footer>
-                <ClickyIcon name="hearto" pressedColor='red'/>
-                <Icon name="mail" type='AntDesign' style={styles.footerIcon}/>
-                <Icon name="rocket1" type='AntDesign' style={styles.footerIcon}/>
-                <ClickyIcon name="tago" style={{fontSize:22, flex: 1, textAlign:'right', paddingRight:10}}/>
-            </Footer>
-            <Description>
-                <Name>{item.author.name}</Name> {item.description}
-            </Description>
-        </Post>
+        <Post item={item} viewable={viewable}/>
     );
 
     return (
@@ -144,13 +107,7 @@ export default function Feed() {
                 renderItem={postRender}
                 style={{flex:1}}
             />
-            <View style={styles.feedFooter}>
-                <Icon name="home" type='Entypo' style={styles.feedFooterIcon}/>
-                <Icon name="magnifier" type='SimpleLineIcons' style={styles.feedFooterIcon}/>
-                <Icon name="plussquareo" type='AntDesign' style={styles.feedFooterIcon}/>
-                <Icon name="hearto" type='AntDesign' style={styles.feedFooterIcon}/>
-                <Icon name="user" type='AntDesign' style={styles.feedFooterIcon}/>
-            </View>
+        <Footer/>
         </View>
     );
 }

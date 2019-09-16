@@ -1,5 +1,5 @@
-import styled from 'styled-components/native';
-import {StyleSheet, View} from "react-native";
+import {StyleSheet} from "react-native";
+import styled from "styled-components";
 
 export const Post = styled.View`
     margin-top: 10px;
@@ -39,13 +39,6 @@ export const Name = styled.Text`
 export const Description = styled.Text`
     padding: 15px;
     line-height: 18px;
-`;
-
-export const Loading = styled.ActivityIndicator.attrs({
-    color: '#999',
-    size: 'small'
-})`
-    margin: 30px 0;
 `;
 
 export const More = styled.Text`
