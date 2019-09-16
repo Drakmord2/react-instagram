@@ -2,7 +2,7 @@
 A simple clone of Instagram's UI for iOS using React Native
 
 ## Preview
-![Preview](feed.gif)
+![Preview](feed2.gif)
 
 ## Features
 - Infinite scroll;
